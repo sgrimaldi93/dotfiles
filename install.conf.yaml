@@ -105,7 +105,7 @@
 
 - shell:
     -
-      - pip3 install --user --upgrade bumpversion diceware
+      - pip3 install --user --upgrade bumpversion
       - Installing a few useful utilities
 
 

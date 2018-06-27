@@ -1,16 +1,28 @@
 with import <nixpkgs> {};
 
-{
+rec {
   allowUnfree = true;
 
-  packageOverrides = pkgs: with pkgs; {
+
+  packageOverrides = pkgs: with pkgs; rec {
+
+    speedtest-cli-api = pythonPackages.buildPythonPackage rec {
+      inherit (speedtest-cli) name version meta src;
+    };
+
+    i3pystatus = pkgs.i3pystatus.overrideAttrs (oldAttrs: {
+      extraLibs = with python3Packages; [ pygeoip ];
+    });
 
     # My basic packages.
     base = pkgs.buildEnv {
       name = "base-packages";
       paths = [
+        diceware
+        i3pystatus
         man
-        nix
+        perl
+        pypi2nix
         texinfoInteractive
         zsh
       ];
@@ -37,6 +49,5 @@ with import <nixpkgs> {};
         fi
       '';
     };
-
   };
 }
