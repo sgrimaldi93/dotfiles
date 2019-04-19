@@ -31,8 +31,15 @@ in
       keyboard = {
         layout = "us";
 
+        model = "evdev";
+
         options = [
+          "caps:swapescape"
           "compose:lwin"
+          "nbsp:level2"
+          "numpad:mac"
+          "shift:both_capslock"
+          "shift:breaks_caps"
         ];
       };
 
@@ -201,6 +208,7 @@ in
         wget
         wireshark
         x11_ssh_askpass
+        x2goclient
         xar
         xclip
         xcompmgr
@@ -227,12 +235,11 @@ in
         GEM_HOME = "$(${unstable.ruby}/bin/ruby -e 'print Gem.user_dir')";
         GIT_ASKPASS="${unstable.gnome3.seahorse}/libexec/seahorse/ssh-askpass";
         GTK_IM_MODULE = "ibus";
-        LANG = "en_US.UTF-8";
         LC_ALL = "en_US.UTF-8";
         LC_CTYPE = "en_US.UTF-8";
         LESSCOLOR = "yes";
         LIBVIRT_DEFAULT_URI = "qemu:///system";
-        MPD_HOST = "${XDG_CONFIG_HOME}/mpd/socket";
+        MPD_HOST = "${config.home.homeDirectory}/.config/mpd/socket";
         NIX_AUTO_RUN = "1";
         PAGER = "less";
         PERL5LIB = "\${HOME}/perl5/lib/perl5";
@@ -245,9 +252,6 @@ in
         SUDO_ASKPASS="${unstable.gnome3.seahorse}/libexec/seahorse/ssh-askpass";
         TEXMFHOME = "\${HOME}/texmf";
         USE_CCACHE = "1";
-        XDG_CACHE_HOME = "\${HOME}/.cache";
-        XDG_CONFIG_HOME = "\${HOME}/.config";
-        XDG_DATA_HOME = "\${HOME}/.local/share";
         XDG_DESKTOP_DIR = "\${HOME}/";
         XDG_DOCUMENTS_DIR = "\${HOME}/src";
         XDG_DOWNLOAD_DIR = "\${HOME}/Downloads";
@@ -259,35 +263,38 @@ in
         XMODIFIERS = "@im=ibus";
         _JAVA_OPTIONS = "-Dawt.useSystemAAFontSettings=lcd -Dswing.defaultlaf=com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 
-        PYTHONSTARTUP = unstable.writeScript "pythonrc.py" ''
-          # This file is sourced by interactive python sessions
-          # Partially copied from <http://stackoverflow.com/questions/3613418/what-is-in-your-python-interactive-startup-script>
+        PYTHONSTARTUP = let
+          pythonrc = unstable.writeScript "pythonrc.py" ''
+            # This file is sourced by interactive python sessions
+            # Partially copied from <http://stackoverflow.com/questions/3613418/what-is-in-your-python-interactive-startup-script>
 
-          from __future__ import division, print_function
+            from __future__ import division, print_function
 
-          import atexit
-          import os
-          import readline
-          import rlcompleter
+            import atexit
+            import os
+            import readline
+            import rlcompleter
 
-          # Tab complete with readline
-          readline.parse_and_bind("tab: complete")
+            # Tab complete with readline
+            readline.parse_and_bind("tab: complete")
 
-          # History
-          historyPath = os.path.expanduser("~/.history.py")
+            # History
+            historyPath = os.path.expanduser("~/.history.py")
 
-          def save_history(historyPath=historyPath):
-              import readline
-              readline.write_history_file(historyPath)
+            def save_history(historyPath=historyPath):
+                import readline
+                readline.write_history_file(historyPath)
 
-          if os.path.exists(historyPath):
-              readline.read_history_file(historyPath)
+            if os.path.exists(historyPath):
+                readline.read_history_file(historyPath)
 
-          atexit.register(save_history)
-          del os, atexit, readline, rlcompleter, save_history, historyPath
+            atexit.register(save_history)
+            del os, atexit, readline, rlcompleter, save_history, historyPath
 
-          # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
-        '';
+            # vim: tabstop=8 expandtab shiftwidth=4 softtabstop=4
+          '';
+        in
+          "${pythonrc}";
 
         LS_COLORS = let
           solarized = builtins.fetchGit {
@@ -361,26 +368,6 @@ in
 
             # Original path.
             "\$(manpath -q)"
-          ];
-        in
-          "$(${fixup-paths} \"${rawpath}\")";
-
-        INFOPATH = let
-          rawpath = builtins.concatStringsSep ":" [
-            # Local scripts.
-            "\${HOME}/.local/share/info"
-
-            # Nix/NixOS paths.
-            "\${HOME}/.nix-profile/share/info"
-            "/run/current-system/sw/share/info"
-            "/nix/var/nix/profiles/default/share/info"
-
-            # General system paths.
-            "/usr/local/share/info"
-            "/usr/share/info"
-
-            # Original path.
-            "\${INFOPATH}"
           ];
         in
           "$(${fixup-paths} \"${rawpath}\")";
@@ -481,7 +468,7 @@ in
           "ohnjgmpcibpbafdlkimncjhflgedgpam" # 4chan X
         ];
 
-        package = unstable.chromium;
+        package = master.chromium;
       };
 
       command-not-found = {
@@ -1062,6 +1049,10 @@ in
 
     xdg = {
       enable = true;
+
+      cacheHome = "${config.home.homeDirectory}/.cache";
+      configHome = "${config.home.homeDirectory}/.config";
+      dataHome = "${config.home.homeDirectory}/.local/share";
     };
 
     xresources = {
@@ -1090,9 +1081,6 @@ in
         ${unstable.xorg.xinput}/bin/xinput disable 'pointer:SynPS/2 Synaptics TouchPad'
         ${unstable.xorg.xinput}/bin/xinput disable 'pointer:DELL081C:00 044E:121F Touchpad'
         ${unstable.xorg.xinput}/bin/xinput disable 'pointer:DELL081C:00 044E:121F Mouse'
-
-        # Activate Compose key.
-        ${unstable.xorg.setxkbmap}/bin/setxkbmap -model evdev -layout us -option compose:lwin -option caps:swapescape
 
         # Disable Yubikey by default.
         ${unstable.xorg.xinput}/bin/xinput disable 'Yubico Yubikey 4 OTP+U2F+CCID'
