@@ -444,7 +444,7 @@ in
           "aurora-work-docked" = {
             fingerprint = {
               eDP1 = aurora-display;
-              DP-1 = work-displayport;
+              DP1-2 = work-displayport;
             };
 
             config = {
@@ -455,7 +455,7 @@ in
                 primary = true;
                 rate = "120.01";
               };
-              DP-1 = {
+              DP1-2 = {
                 enable = true;
                 mode = "1920x1200";
                 position = "0x0";
@@ -795,11 +795,14 @@ in
         plugins = [
           "Recover-vim"
           "editorconfig-vim"
+          "fzf-vim"
           "haskell-vim"
           "nerdtree"
           "nerdtree-git-plugin"
           "rust-vim"
+          "supertab"
           "tagbar"
+          "ultisnips"
           "vim-airline"
           "vim-airline-themes"
           "vim-colors-solarized"
@@ -811,7 +814,6 @@ in
           "vim-obsession"
           "vim-polyglot"
           "vim-sensible"
-          "vundle"
         ];
 
         extraConfig = ''
